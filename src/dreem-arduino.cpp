@@ -1,5 +1,5 @@
 
-#include "Dreem.h"
+#include "dreem-arduino.h"
 #include "Arduino.h"
 #include "SerialCommand.h"
 
@@ -37,7 +37,7 @@ void executeMethod()
 	}
 }
 
-void unknownCommand()
+void unknownCommand(const char* inp)
 {
 	Serial.println("I don't understand that command..");
 }
@@ -61,7 +61,7 @@ void DreemInterface::begin()
 	SerialCommandInterface.addCommand("atr", ::updateAttribute);
 	SerialCommandInterface.addCommand("mtd", ::executeMethod);	
 
-	SerialCommandInterface.addDefaultHandler(::unknownCommand);
+	SerialCommandInterface.setDefaultHandler(::unknownCommand);
 
 }
 

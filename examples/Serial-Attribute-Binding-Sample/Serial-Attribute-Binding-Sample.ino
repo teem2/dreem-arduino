@@ -2,7 +2,7 @@
 #include <SimpleList.h>
 #include <SerialCommand.h>
 #include <SoftwareSerial.h>
-#include <Dreem.h>
+#include <dreem-arduino.h>
 
 String QuickCountdown(void *userdata);
 
