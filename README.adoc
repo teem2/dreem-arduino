@@ -1,1 +1,4 @@
 = Dreem Library for Arduino =
+Dreem Arduino files.
+
+The Dreem library binds arduino inputs/outputs/variables to a Dreem server so it can interact with other computers/devices.
