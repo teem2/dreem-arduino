@@ -1,58 +1,64 @@
+/*
+ The MIT License (see LICENSE)
+ Copyright (C) 2014-2015 Teem2 LLC
+*/
+
 //// these 4 includes are needed to convince Arduino IDE to reference the correct libraries:
 #include <SimpleList.h>
 #include <SerialCommand.h>
-#include <SoftwareSerial.h>
 #include <dreem-arduino.h>
 
 String QuickCountdown(void *userdata);
 
 void setup()
 {
-  Dreem.begin();
+	// start the serial connection to the dreem server
+	Dreem.begin();
 
-  // bind the first 2 analog inputs to dreem attributes knob1 and knob2
-  Dreem.bindAnalogInput(3, "knob1");
-  Dreem.bindAnalogInput(4, "knob2");
 
-  Dreem.bindDigitalInput(11, "button1", true);
-  Dreem.bindDigitalInput(12, "button2", true);
+	// bind the first 2 analog inputs to dreem attributes knob1 and knob2
+	Dreem.bindAnalogInput(3, "knob1");
+	Dreem.bindAnalogInput(4, "knob2");
 
-  Dreem.bindAttribute("number", writeNumber);
+	Dreem.bindDigitalInput(11, "button1", true);
+	Dreem.bindDigitalInput(12, "button2", true);
 
-  Dreem.bindDigitalOutput(2, "seg0");
-  Dreem.bindDigitalOutput(3, "seg1");
-  Dreem.bindDigitalOutput(4, "seg2");
-  Dreem.bindDigitalOutput(5, "seg3");
-  Dreem.bindDigitalOutput(6, "seg4");
-  Dreem.bindDigitalOutput(7, "seg5");
-  Dreem.bindDigitalOutput(8, "seg6");
-  Dreem.bindDigitalOutput(9, "seg7");
+	Dreem.bindAttribute("number", writeNumber);
 
-  Dreem.registerMethod("countdown" , QuickCountdown);
-  QuickCountdown((void*)0);
+	Dreem.bindDigitalOutput(2, "seg0");
+	Dreem.bindDigitalOutput(3, "seg1");
+	Dreem.bindDigitalOutput(4, "seg2");
+	Dreem.bindDigitalOutput(5, "seg3");
+	Dreem.bindDigitalOutput(6, "seg4");
+	Dreem.bindDigitalOutput(7, "seg5");
+	Dreem.bindDigitalOutput(8, "seg6");
+	Dreem.bindDigitalOutput(9, "seg7");
 
-  Dreem.callMethod("initsequencedone");
+	Dreem.registerMethod("countdown" , QuickCountdown);
+	QuickCountdown((void*)0);
+
+	// tell the dreem server we are ready for an inquery about the bind properties
+	Dreem.initComplete();
 }
 
 void loop()
 {
-  // calling Dreem.update() makes sure all the serial commands get processed and all the bound inputs/outputs get updated/sent.
-  Dreem.update();
+	// calling Dreem.update() makes sure all the serial commands get processed and all the bound inputs/outputs get updated/sent.
+	Dreem.update();
 }
 
 String QuickCountdown(void *userdata)
 {
-  for (int i = 9; i > 0; i--)
-  {
-    Dreem.updateAttribute("number", String(i));
+	for (int i = 9; i > 0; i--)
+	{
+		Dreem.updateAttribute("number", String(i));
+		delay(100);
+	}
+	Dreem.updateAttribute("number", "0");
+	delay(100);
 
-    delay(100);
-  }
-  Dreem.updateAttribute("number", "0");
-  delay(100);
-
-  Dreem.updateAttribute("number", "off");
-  return "done";
+	Dreem.updateAttribute("number", "off");
+	return "done";
 }
 
 
