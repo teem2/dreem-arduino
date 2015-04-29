@@ -87,10 +87,11 @@ void DreemInterface::setAttribute(String name, String Value)
 
 void DreemInterface::setAttribute(String name, float Value)
 {
+	char buffer[40];
 	print("{\"atr\":\"");
 	print(name);
 	print("\",\"type\":\"f\",\"value\":");
-	print(Value);
+	print(dtostrf(Value,  10, 10, buffer));
 	print("}");
 	print(DREEMSERIALLINETERMINATOR);	
 }
