@@ -7,7 +7,7 @@
 
 #include "SimpleList.h"
 
-#define DREEMDEBUG 
+//#define DREEMDEBUG 
 #define DREEMDEBUGSERIAL Serial
 
 #define DREEMSERIAL Serial
@@ -39,20 +39,22 @@ public:
 };
 
 // contains the details to connect a dreem name to an output pin. 
-class DigitalOutputBinding
+class OutputBinding
 {
 public:
-	DigitalOutputBinding(int _pin, String _name) : name(_name), pin(_pin)
+	OutputBinding(int _pin, String _name, bool _analog = false) : name(_name), pin(_pin), analog(_analog)
 	{
 		pinMode(_pin, OUTPUT);
 		digitalWrite(_pin, LOW);
 	}
 
-	DigitalOutputBinding(){};
+	OutputBinding(){};
 
 	String name;
 	int pin;
+	bool analog;
 };
+
 
 // contains the details to connect a dreem name to a digital input pin. 
 // the input is debounced for a few cycles.
@@ -120,7 +122,7 @@ public:
 	DreemInterface(){ lastHeartBeat = millis(); }
 
 	void begin();
-	
+	void initComplete();
 	void bindAttribute(String name, void(*function)(AttributeBinding*, String), void* userdata = NULL);
 	
 	void setAttribute(String name, int value);
@@ -130,7 +132,8 @@ public:
 	void bindAnalogInput(int pin, String name);
 	void bindDigitalInput(int pin, String name, bool pullup = false);
 	void bindDigitalOutput(int pin, String name);
-	void registerMethod(String name, String (*function)(void *), void* userdata = NULL);
+	void bindAnalogOutput(int pin, String name);
+	void registerMethod(String name, String(*function)(void *), void* userdata = NULL);
 	void update();
 
 	// method called from remote
@@ -147,7 +150,8 @@ public:
 private:
 	SimpleList<AnalogInputBinding> BoundAnalogInputs;
 	SimpleList<DigitalInputBinding> BoundDigitalInputs;
-	SimpleList<DigitalOutputBinding> BoundDigitalOutputs;
+	SimpleList<OutputBinding> BoundDigitalOutputs;
+	SimpleList<OutputBinding> BoundAnalogOutputs;
 	SimpleList<AttributeBinding> BoundAttributes;
 	SimpleList<MethodRegistration> RegisteredMethods;
 

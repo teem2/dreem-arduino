@@ -53,8 +53,7 @@ void DreemInterface::begin()
 #if DREEMDEBUGSERIAL!=DREEMSERIAL 
 	DREEMDEBUGSERIAL.begin(115200);	
 
-	#endif
-	LOGLN("DreemInterface::begin()");
+#endif
 #endif
 
 	SerialCommandInterface.addCommand("inq", ::sendBoundItems); 
@@ -108,10 +107,14 @@ void DreemInterface::update()
 	readIncomingSerialCommands();
 	if (millis() - lastHeartBeat > 1000)
 	{
-		lastHeartBeat = millis();
-		
+		lastHeartBeat = millis();	
 		callMethod("heartbeat");
 	}
+}
+
+void DreemInterface::initComplete()
+{
+	callMethod("initsequencedone");
 }
 
 void DreemInterface::bindAnalogInput(int pin, String name)
@@ -131,11 +134,26 @@ void UpdateOutputPin(AttributeBinding *binding, String newvalue)
 	}
 }
 
+void UpdateOutputPinAnalog(AttributeBinding *binding, String newvalue)
+{
+
+	float V = newvalue.toFloat();
+	int iV = (int)(V*255.0);
+	analogWrite((int)binding->userdata, iV);
+}
+
 void DreemInterface::bindDigitalOutput(int pin, String name)
 {
-	BoundDigitalOutputs.push_back(DigitalOutputBinding(pin, name));
+	BoundDigitalOutputs.push_back(OutputBinding(pin, name, false));
 	bindAttribute(name, UpdateOutputPin,(void*)pin);
 }
+
+void DreemInterface::bindAnalogOutput(int pin, String name)
+{
+	BoundAnalogOutputs.push_back(OutputBinding(pin, name, true));
+	bindAttribute(name, UpdateOutputPinAnalog, (void*)pin);
+}
+
 
 void DreemInterface::bindDigitalInput(int pin, String name, bool pullup)
 {
@@ -239,7 +257,7 @@ void DreemInterface::sendBoundItems()
 	print("],");
 	print("\"digitalOutputs\":[");
 	c = 0;
-	for (SimpleList<DigitalOutputBinding>::iterator itr = BoundDigitalOutputs.begin(); itr != BoundDigitalOutputs.end(); ++itr)
+	for (SimpleList<OutputBinding>::iterator itr = BoundDigitalOutputs.begin(); itr != BoundDigitalOutputs.end(); ++itr)
 	{
 		print("\"");
 		print(itr->name);
@@ -251,6 +269,21 @@ void DreemInterface::sendBoundItems()
 		c++;
 	}
 	
+	print("],");
+	print("\"digitalOutputs\":[");
+	c = 0;
+	for (SimpleList<OutputBinding>::iterator itr = BoundAnalogOutputs.begin(); itr != BoundAnalogOutputs.end(); ++itr)
+	{
+		print("\"");
+		print(itr->name);
+		print("\"");
+		if (c < BoundAnalogOutputs.size() - 1)
+		{
+			print(",");
+		}
+		c++;
+	}
+
 	print("],");
 	print("\"attributeBindings\":[");
 	c = 0;
